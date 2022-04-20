@@ -1,0 +1,61 @@
+#cloud-config
+# Written to run on Debian 11
+fqdn: ${DOMAIN}
+packages:
+  - sqlite3
+package_upgrade: true
+timezone: ${TIMEZONE}
+users:
+  - name: caddy
+    gecos: Caddy web server
+    groups: www-data
+    homedir: /var/lib/caddy
+    shell: /user/sbin/nologin
+write_files:
+  - path: /etc/caddy/Caddyfile
+    owner: caddy:caddy
+    content: |
+      {
+        order cgi last
+      }
+
+      ${DOMAIN} {
+        cgi /cgi-bin/collector.php /usr/share/bluesky/api/controller.sh
+      }
+  - path: /etc/ssh/sshd_config
+    content: |
+      Protocol 2
+      HostKey /etc/ssh/ssh_host_ed25519_key
+      HostKey /etc/ssh/ssh_host_rsa_key
+      KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+      MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com
+      # Ciphers chacha20-poly1305@openssh.com,aes256-ctr
+      # MACs hmac-sha2-512-etm@openssh.com
+      Port 3122
+      ClientAliveInterval 10
+      ClientAliveCountMax 3
+  - path: /usr/lib/systemd/system/caddy.service
+    content: |
+      [Unit]
+      Description=Caddy
+      Documentation=https://caddyserver.com/docs/
+      After=network.target network-online.target
+      Requires=network-online.target
+
+      [Service]
+      Type=notify
+      User=caddy
+      Group=caddy
+      ExecStart=/usr/bin/caddy run --environ --config /etc/caddy/Caddyfile
+      ExecReload=/usr/bin/caddy reload --config /etc/caddy/Caddyfile
+      TimeoutStopSec=5s
+      LimitNOFILE=1048576
+      LimitNPROC=512
+      PrivateTmp=true
+      ProtectSystem=full
+      AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+      [Install]
+      WantedBy=multi-user.target
+final_message: "All set. Configure /etc/bluesky/email.ini with your preferred SMTP setup."

@@ -18,6 +18,7 @@ This is a _very_ early development version of the Terraform deployment of BlueSk
 ## To Do
 
 - Test
+- Verify sshd_config settings
 - Update cloud-init.sh download to upstream repo
 - Add Terraform files for other cloud providers
 

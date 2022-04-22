@@ -3,15 +3,18 @@
 # DigitalOcean first-boot journal gets corrupted, create a new one
 systemctl restart systemd-journald.service
 
-# install Caddy with CGI module
+# swap packaged Caddy binary with one bundled with CGI module
 curl \
   --show-error \
   --silent \
   --remote-header-name \
   --remote-name \
   "https://caddyserver.com/api/download?os=linux&arch=amd64&p=github.com%2Faksdb%2Fcaddy-cgi%2Fv2&idempotency=45911821411451"
-cp caddy_linux_amd64_custom /usr/bin/caddy
-chmod 755 /usr/bin/caddy
+dpkg-divert --divert /usr/bin/caddy.default --rename /usr/bin/caddy
+cp ./caddy_linux_amd64_custom /usr/bin/caddy.custom
+chmod 755 /usr/bin/caddy.custom
+update-alternatives --install /usr/bin/caddy caddy /usr/bin/caddy.default 10
+update-alternatives --install /usr/bin/caddy caddy /usr/bin/caddy.custom 50
 rm --force caddy_linux_amd64_custom
 
 # install latest BlueSky Server release
@@ -27,4 +30,4 @@ apt install ./bluesky-server.deb
 rm --force bluesky-server.deb
 
 # start the web server
-systemctl enable --now caddy
+systemctl restart caddy

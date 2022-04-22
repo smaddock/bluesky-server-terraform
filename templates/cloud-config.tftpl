@@ -70,14 +70,9 @@ apt:
         =e4lF
         -----END PGP PUBLIC KEY BLOCK-----
 fqdn: ${DOMAIN}
-packages:
-  - caddy
-  - jq
-  - sqlite3
-package_upgrade: true
 timezone: ${TIMEZONE}
 write_files:
-  - path: /etc/caddy/Caddyfile
+  - path: /etc/caddy/Caddyfile.bluesky
     content: |
       {
         order cgi last

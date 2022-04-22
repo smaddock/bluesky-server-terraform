@@ -13,7 +13,7 @@ resource "digitalocean_droplet" "bluesky" {
   user_data  = data.cloudinit_config.bluesky.rendered
 }
 
-# DigitalOcean Droplet managed by Terraform
+# DigitalOcean Firewall managed by Terraform
 resource "digitalocean_firewall" "bluesky" {
   count       = var.enable_firewall ? 1 : 0
   droplet_ids = [digitalocean_droplet.bluesky.id]
@@ -59,11 +59,10 @@ resource "digitalocean_floating_ip_assignment" "bluesky" {
 resource "digitalocean_project" "bluesky" {
   description = "BlueSkyConnect macOS SSH tunnel"
   environment = "Production"
-  name        = "bluesky"
+  name        = "BlueSky"
   purpose     = "Operational / Developer tooling"
   resources = [
     data.digitalocean_floating_ip.bluesky.urn,
-    digitalocean_droplet.bluesky.urn,
-    digitalocean_firewall.bluesky[*].urn
+    digitalocean_droplet.bluesky.urn
   ]
 }

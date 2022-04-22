@@ -16,6 +16,7 @@ chmod 755 /usr/bin/caddy.custom
 update-alternatives --install /usr/bin/caddy caddy /usr/bin/caddy.default 10
 update-alternatives --install /usr/bin/caddy caddy /usr/bin/caddy.custom 50
 rm --force caddy_linux_amd64_custom
+chown caddy:caddy /etc/caddy/Caddyfile
 
 # install latest BlueSky Server release
 DL_URL=$(curl --silent "https://api.github.com/repos/smaddock/bluesky-server/releases/latest" |
@@ -29,5 +30,10 @@ curl \
 apt install ./bluesky-server.deb
 rm --force bluesky-server.deb
 
-# start the web server
+# restart the web server
 systemctl restart caddy
+
+# update the SSH server
+rm --force /etc/ssh/sshd_config
+mv /etc/ssh/sshd_config.bluesky /etc/ssh/sshd_config
+systemctl reload sshd

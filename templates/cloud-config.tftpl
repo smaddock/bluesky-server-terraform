@@ -78,7 +78,6 @@ package_upgrade: true
 timezone: ${TIMEZONE}
 write_files:
   - path: /etc/caddy/Caddyfile
-    owner: caddy:caddy
     content: |
       {
         order cgi last
@@ -87,7 +86,7 @@ write_files:
       ${DOMAIN} {
         cgi /cgi-bin/collector.php /usr/share/bluesky/api/controller.sh
       }
-  - path: /etc/ssh/sshd_config
+  - path: /etc/ssh/sshd_config.bluesky
     content: |
       Protocol 2
       HostKey /etc/ssh/ssh_host_ed25519_key
